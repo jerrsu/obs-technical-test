@@ -13,8 +13,10 @@
 2. Untuk menjalankan aplikasi, gunakan perintah berikut:
 
    ```bash
-   mvn spring-boot:run
-
+   mvn clean spring-boot:run
+3. Untuk menjalankan testing aplikasi
+    ```bash
+    mvn test
 ### Import Collection
 1. Import file Collection API.json ke aplikasi postman
 2. Jalankan sesuai service yg ada
