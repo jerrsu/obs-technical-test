@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order")
+@Table(name = "order_test")
 public class Order {
     @Id
     @Column(name = "order_no",unique = true, nullable = false)

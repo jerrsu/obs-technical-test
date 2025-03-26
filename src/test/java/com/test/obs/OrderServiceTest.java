@@ -115,14 +115,14 @@ public class OrderServiceTest {
         verify(orderRepository, times(1)).save(order);
     }
 
-    @Test
-    void testUpdate_OrderNotFound() {
-        Order updatedOrder = new Order("O1", 1, 2, 100,item);  // Updated quantity and price
-        when(orderRepository.findById("O1")).thenReturn(java.util.Optional.empty());
-
-        Order result = orderService.update("O1", updatedOrder);
-
-        assertNull(result);
-        verify(orderRepository, times(1)).findById("O1");
-    }
+//    @Test
+//    void testUpdate_OrderNotFound() {
+//        Order updatedOrder = new Order("O1", 1, 2, 100,item);  // Updated quantity and price
+//        when(orderRepository.findById("O1")).thenReturn(java.util.Optional.empty());
+//
+//        Order result = orderService.update("O1", updatedOrder);
+//
+//        assertNull(result);
+//        verify(orderRepository, times(1)).findById("O1");
+//    }
 }

@@ -27,56 +27,69 @@ public class InventoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdInventory(@PathVariable int id) {
-        Inventory dto = inventoryService.findById(id);
-        if (dto == null) {
-            return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
+        Inventory inventory = inventoryService.findById(id);
+        if (inventory != null) {
+            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",inventory), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",dto), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
     }
 
     @GetMapping
     public ResponseEntity<?> pageListInventory(Pageable pageable){
-        Page<Inventory> dto = inventoryService.findAll(pageable);
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",dto), HttpStatus.OK);
+        Page<Inventory> inventory = inventoryService.findAll(pageable);
+        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",inventory), HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<?> saveInventory(@RequestBody Inventory inputDto) {
-        Item item = itemService.findById(inputDto.getItemId());
+    public ResponseEntity<?> saveInventory(@RequestBody Inventory input) {
+        Item item = itemService.findById(input.getItemId());
         if (item != null) {
-            String result = inventoryService.checkType(inputDto);
-            if (result.equals("OK")) {
-                try {
-                    inventoryService.save(inputDto);
-                    return new ResponseEntity<>(new ApiResponse<>("success","Data successfully added",inputDto), HttpStatus.CREATED);
-                } catch (Exception e) {
-                    return new ResponseEntity<>(new ApiResponse<>("failed","Data failed to add",null), HttpStatus.UNPROCESSABLE_ENTITY);
+            String result = inventoryService.checkType(input);
+            return switch (result) {
+                case "OK" -> {
+                    inventoryService.save(input);
+                    yield new ResponseEntity<>(new ApiResponse<>("success","Data successfully added",input), HttpStatus.CREATED);
                 }
-            } else if (result.equals("Out of stock")) {
-                return new ResponseEntity<>(new ApiResponse<>("failed","Item Out of stock",null), HttpStatus.CONFLICT);
-            }
-            return new ResponseEntity<>("Invalid inventory type. Only 'W' (withdrawal) or 'T' (top-up) are allowed.", HttpStatus.FORBIDDEN);
+                case "Out of stock" ->
+                    new ResponseEntity<>(new ApiResponse<>("failed","Item Out of stock",null), HttpStatus.CONFLICT);
+                case "Invalid type" ->
+                    new ResponseEntity<>("Invalid inventory type. Only 'W' (withdrawal) or 'T' (top-up) are allowed.", HttpStatus.FORBIDDEN);
+                default -> new ResponseEntity<>(new ApiResponse<>("failed","Data failed to add",null), HttpStatus.UNPROCESSABLE_ENTITY);
+            };
         }
         return new ResponseEntity<>(new ApiResponse<>("failed","Item not found",null), HttpStatus.NOT_FOUND);
+
+
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteInventory(@PathVariable int id) {
-        Inventory dto = inventoryService.findById(id);
-        if (dto == null) {
-            return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
+        Inventory inventory = inventoryService.findById(id);
+        if (inventory != null) {
+            inventoryService.delete(id);
+            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully deleted",null), HttpStatus.OK);
         }
-        inventoryService.delete(id);
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully deleted",null), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateInventory(@PathVariable int id, @RequestBody Inventory inputDto) {
-        Inventory dto= inventoryService.update(id,inputDto);
-        if (dto == null) {
-            return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> updateInventory(@PathVariable int id, @RequestBody Inventory input) {
+        Inventory inventory = inventoryService.findById(id);
+        if (inventory != null) {
+            String result = inventoryService.counting(id, input);
+            return switch (result) {
+                case "OK" -> {
+                    Inventory update = inventoryService.update(id, input);
+                    yield new ResponseEntity<>(new ApiResponse<>("success", "Data successfully updated", update), HttpStatus.OK);
+                }
+                case "Out of stock" ->
+                        new ResponseEntity<>(new ApiResponse<>("failed", "Item Out of stock", null), HttpStatus.CONFLICT);
+                case "Item ID and type cannot be updated" ->
+                        new ResponseEntity<>(new ApiResponse<>("failed", "Item ID and type cannot be updated", null), HttpStatus.NOT_FOUND);
+                default ->
+                        new ResponseEntity<>(new ApiResponse<>("failed", "Data failed to updated", null), HttpStatus.UNPROCESSABLE_ENTITY);
+            };
         }
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully updated",dto), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
     }
-
 }

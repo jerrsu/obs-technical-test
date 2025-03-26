@@ -16,7 +16,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "inventory")
+@Table(name = "inventory_test")
 public class Inventory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

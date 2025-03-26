@@ -53,7 +53,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\":\"Kurupuk\",\n    \"price\":5000,\n    \"stock\": 0\n}",
+							"raw": "{\n    \"name\":\"Kurupuk\",\n    \"price\":5000,\n    \"stock\": 100\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -196,7 +196,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"qty\":5,\n    \"itemId\":1,\n    \"type\": \"W\"\n}",
+							"raw": "{\n    \"qty\":250,\n    \"itemId\":1,\n    \"type\": \"T\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -312,7 +312,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"itemId\":1,\n    \"qty\":1\n}",
+							"raw": "{\n    \"itemId\":1,\n    \"qty\":10\n}",
 							"options": {
 								"raw": {
 									"language": "json"

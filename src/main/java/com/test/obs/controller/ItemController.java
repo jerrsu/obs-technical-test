@@ -24,24 +24,24 @@ public class ItemController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> findByIdItem(@PathVariable int id) {
-        Item dto = itemService.findById(id);
-        if (dto == null) {
-            return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
+        Item item = itemService.findById(id);
+        if (item != null) {
+            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",item), HttpStatus.OK);
         }
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",dto), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
     }
 
     @GetMapping
     public ResponseEntity<?> pageListItem(@PageableDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable){
-        Page<Item> dto = itemService.findAll(pageable);
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",dto), HttpStatus.OK);
+        Page<Item> item = itemService.findAll(pageable);
+        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully retrieved",item), HttpStatus.OK);
     }
 
     @PostMapping
     public ResponseEntity<?> saveItem(@RequestBody Item inputDto) {
         try {
-            Item dto = itemService.save(inputDto);
-            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully added",dto), HttpStatus.CREATED);
+            Item item = itemService.save(inputDto);
+            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully added",item), HttpStatus.CREATED);
         }
         catch (Exception e) {
             return new ResponseEntity<>(new ApiResponse<>("failed","Data failed to add",null), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -50,21 +50,20 @@ public class ItemController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteItem(@PathVariable int id) {
-        Item dto = itemService.findById(id);
-        if (dto == null) {
-            return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
+        Item item = itemService.findById(id);
+        if (item != null) {
+            itemService.delete(id);
+            return new ResponseEntity<>(new ApiResponse<>("success","Data successfully deleted",null), HttpStatus.OK);
         }
-        itemService.delete(id);
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully deleted",null), HttpStatus.OK);
-
+        return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateItem(@PathVariable int id, @RequestBody Item inputDto) {
-        Item dto = itemService.update(id,inputDto);
-        if (dto == null) {
+        Item item = itemService.update(id,inputDto);
+        if (item == null) {
             return new ResponseEntity<>(new ApiResponse<>("failed","Data not found",null), HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully updated",dto), HttpStatus.OK);
+        return new ResponseEntity<>(new ApiResponse<>("success","Data successfully updated",item), HttpStatus.OK);
     }
 }

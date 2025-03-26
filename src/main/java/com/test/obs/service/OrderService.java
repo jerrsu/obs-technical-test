@@ -2,12 +2,13 @@ package com.test.obs.service;
 
 import com.test.obs.model.Item;
 import com.test.obs.model.Order;
-import com.test.obs.reporitory.ItemRepository;
 import com.test.obs.reporitory.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author jerrySuparman
@@ -19,7 +20,10 @@ public class OrderService {
     private OrderRepository orderRepository;
 
     @Autowired
-    private ItemRepository itemRepository;
+    private ItemService itemService;
+
+    @Autowired
+    private InventoryService inventoryService;
 
     public Order findById(String id) {
         return orderRepository.findById(id).orElse(null);
@@ -30,7 +34,7 @@ public class OrderService {
     }
 
     public Order save(Order order) {
-        Item item = itemRepository.findById(order.getItemId()).orElse(null);
+        Item item = itemService.findById(order.getItemId());
         String con = orderRepository.findLastOrderId();
         order.setOrderNo(generateOrderNo(con));
         order.setPrice(item.getPrice());
@@ -51,18 +55,28 @@ public class OrderService {
 
     public Order update(String id,Order neworder) {
         Order oldorder = findById(id);
-        if (oldorder != null) {
-            if (neworder.getQty() != null) {
-                oldorder.setQty(neworder.getQty());
-            }
-            if (neworder.getPrice() != null) {
-                oldorder.setPrice(neworder.getPrice());
-            }
-            if (neworder.getItemId() != null) {
-                oldorder.setItemId(neworder.getItemId());
-            }
-            return orderRepository.save(oldorder);
-        }
-        return null;
+        oldorder.setQty(neworder.getQty());
+        return orderRepository.save(oldorder);
     }
+
+    public String counting(String id, Order neworder) {
+        Order oldorder = findById(id);
+        Item item = itemService.findById(neworder.getItemId());
+        if (!Objects.equals(neworder.getItemId(), oldorder.getItemId())) {
+            return "Item ID cannot be updated";
+        }
+        int count;
+        if (neworder.getQty() > item.getStock()) {
+            return "Out of stock";
+        }
+        else if (oldorder.getQty() >= neworder.getQty()) {
+            count = oldorder.getQty() - neworder.getQty();
+            itemService.topUp(oldorder.getItemId(), count);
+            return "OK";
+        }
+        count = neworder.getQty() - oldorder.getQty();
+        itemService.withDrawal(oldorder.getItemId(), count);
+        return "OK";
+    }
+
 }

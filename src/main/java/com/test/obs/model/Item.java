@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "item")
+@Table(name = "item_test")
 public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
